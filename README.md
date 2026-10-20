@@ -1,8 +1,8 @@
-# Hand + Head/Mouth Cursor Studio
+# Hand + Head/Mouth Cursor 
 
-I built this project to try a different way of controlling a cursor with a webcam. My hand moves the pointer, a brief mouth opening clicks, a thumb-and-index pinch drags, and head movement scrolls. The macOS app controls the desktop pointer; the browser studio gives you a place to try the gestures on a simulated desktop.
+I built this project as a different way of controlling a cursor with a webcam by using Gemini 4 Argon to . My hand moves the pointer, a brief mouth opening clicks, a thumb-and-index pinch drags, and head movement scrolls. The macOS app controls the desktop pointer, but this cursor gives you a place to try the gestures on a simulated desktop.
 
-The project uses OpenCV and MediaPipe for tracking. The macOS setup is written for macOS 11+ and Python 3.9–3.11. You will need a webcam, and macOS will ask for Camera and Accessibility access when you run the desktop controller.
+The project uses OpenCV and MediaPipe (`pip install mediapipe` `pip install opencv-python') for tracking. The macOS setup is written for macOS 11+ and Python 3.9~3.12. You will need a webcam, and macOS will ask for Camera and Accessibility access when you run the desktop controller.
 
 ## Contents
 
@@ -11,8 +11,7 @@ The project uses OpenCV and MediaPipe for tracking. The macOS setup is written f
 3. [How the tracking works](#how-the-tracking-works)
 4. [Repository layout](#repository-layout)
 5. [Run it on macOS](#run-it-on-macos)
-6. [Try the browser studio](#try-the-browser-studio)
-7. [Self-test and CI](#self-test-and-ci)
+6. [Self-test and CI](#self-test-and-ci)
 8. [Privacy and safety](#privacy-and-safety)
 9. [License](#license)
 
@@ -92,11 +91,6 @@ $$x_t = x_{t-1} + \alpha(x_{\text{target}}-x_{t-1}), \qquad y_t = y_{t-1} + \alp
 
 This is a velocity-adaptive exponential smoothing step: smaller movements get more smoothing, while larger movements follow the target more quickly.
 
-For fine aiming, the response curve is:
-
-$$\text{output} = \operatorname{sign}(c_x)|c_x|^{1.35}$$
-
-The previous version used $|c_x|^{1/\gamma}$ with $\gamma=1.15$ (an exponent of about `0.87`). An exponent below `1` increases the response to very small nonzero inputs; `1.35` reduces it. This curve does not create a literal dead zone.
 
 ### Mouth click
 
@@ -113,10 +107,6 @@ The scroll signal compares nose height with eye height and normalizes it by face
 $$y_{\text{eyes}} = \frac{y_{33}+y_{263}}{2}, \qquad h_{\text{face}} = |y_{152}-y_{10}|$$
 
 $$r_{\text{pitch}} = 0.36 - \frac{y_{\text{nose}}-y_{\text{eyes}}}{h_{\text{face}}}, \qquad \Delta r = r_{\text{pitch}}-r_{\text{neutral}}$$
-
-Outside the neutral band, the documented scroll response is:
-
-$$\text{scroll speed} = \operatorname{sign}(\Delta r)(|\Delta r|-\delta_{\text{deadzone}})K_{\text{scroll}}$$
 
 The scroll expression applies when $|\Delta r|>\delta_{\text{deadzone}}$; inside the band, scroll speed is zero. This is a normalized head-position estimate, not a measured angle in degrees. Press `N` to set a new neutral position.
 
@@ -163,8 +153,7 @@ python3 -m pip install --upgrade pip
 python3 -m pip install --no-compile -r requirements.txt
 
 # Check tracking without moving the desktop pointer.
-python3 hand_cursor_mac.py --preview-only
-
+python3 hand_cursor_mac.py 
 # Start desktop pointer control.
 python3 hand_cursor_mac.py
 ```
@@ -172,16 +161,6 @@ python3 hand_cursor_mac.py
 The UTF-8 setting and `--no-compile` option address a MediaPipe installation error I encountered with a macOS developer-tools Python 3.9 setup. The error included an unexpected non-ASCII character while compiling a package test file.
 
 For desktop control, give the app you launch Python from access under **System Settings → Privacy & Security → Camera** and **Accessibility**. That may be Terminal or your IDE, depending on how you run it.
-
-## Try the browser studio
-
-Open `index.html` locally, or host the repository through GitHub Pages:
-
-1. Open the repository's **Settings → Pages** page.
-2. Select the `main` (or `master`) branch and `/ (root)` as the publishing source, then save.
-3. After GitHub finishes publishing, the expected project URL is [masalmavzer10.github.io/Hand-Cursor-Mac](https://masalmavzer10.github.io/Hand-Cursor-Mac/).
-
-The browser needs camera permission for live gesture tracking. It also needs internet access to load the MediaPipe packages from the CDN. You can use the simulator controls without a camera.
 
 ## Self-test and CI
 
@@ -196,8 +175,34 @@ The tests described for this project cover stopping pointer updates when the han
 ## Privacy and safety
 
 The Python app processes camera input locally for pointer control. The browser studio runs tracking in your browser, but downloads its MediaPipe packages from a CDN, so loading it uses a network connection.
+`Space`, `P`, and `Cmd+Shift+P` are the documented pause controls, and losing hand tracking stops pointer updates.
 
-Use `--preview-only` to check camera tracking before enabling desktop control. `Space`, `P`, and `Cmd+Shift+P` are the documented pause controls, and losing hand tracking stops pointer updates.
+##  How I Used AI in This Project
+
+I used **Google Gemini 4 Argon** as my AI debugger and development partner throughout this project. It wasn't just for fixing errors. I used it to help write and improve code, solve technical problems.
+
+### Building the Application
+
+Gemini helped me develop both the macOS Python application (`hand_cursor_mac.py`) and the browser-based testing studio (`index.html`).
+
+This included working with the mathematical formulas used for tracking.
+
+I also used Gemini to help build an interactive browser demo where I could test the controls without having to interact with my actual desktop to check its safety.
+
+### Debugging and Improving the Code
+
+One of the most useful parts of working with Gemini was debugging problems I hadn't encountered before.
+
+For example:
+
+- **MediaPipe installation errors:** I ran into Python encoding and syntax errors when installing MediaPipe on macOS. Gemini helped me investigate the errors and find a workaround.
+- **Cursor stability:** Small hand movements were sometimes being amplified. Gemini helped identify a problem in the acceleration formula and change it to make cursor movement smoother.
+
+### An Important Note About Privacy
+
+Even though I used Gemini extensively during development, **the application itself doesn't use Gemini or a cloud AI API at runtime**.
+
+The native application processes camera input locally using OpenCV and MediaPipe. Camera frames do not need to be uploaded to Gemini for the mouse controller to work.
 
 ## License
 
