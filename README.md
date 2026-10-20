@@ -1,6 +1,6 @@
 # Hand + Head/Mouth Cursor 
 
-I built this project as a different way of controlling a cursor with a webcam by using Gemini 4 Argon to . My hand moves the pointer, a brief mouth opening clicks, a thumb-and-index pinch drags, and head movement scrolls. The macOS app controls the desktop pointer, but this cursor gives you a place to try the gestures on a simulated desktop.
+I built this project as a different way of controlling a cursor with a webcam. My hand moves the pointer, a brief mouth opening clicks, a thumb-and-index pinch drags, and head movement scrolls. The macOS app controls the desktop pointer, but this cursor gives you a place to try the gestures on a simulated desktop.
 
 The project uses OpenCV and MediaPipe (`pip install mediapipe` `pip install opencv-python') for tracking. The macOS setup is written for macOS 11+ and Python 3.9~3.12. You will need a webcam, and macOS will ask for Camera and Accessibility access when you run the desktop controller.
 
